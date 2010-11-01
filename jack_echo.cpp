@@ -1,3 +1,20 @@
+/********************************************************************
+*       (c) Copyright 2010, Hogeschool voor de Kunsten Utrecht
+*                       Hilversum, the Netherlands
+*********************************************************************
+*
+* File name     : jack_echo.cpp
+* System name   : digital effects
+* 
+*
+* Description   : echo with JACK interface
+*
+*
+* Author        : Marc_G
+* E-mail        : marcg@dinkum.nl
+*
+********************************************************************/
+
 #include <iostream>
 #include <math.h>
 
