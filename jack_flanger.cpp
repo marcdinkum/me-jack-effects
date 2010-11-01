@@ -1,19 +1,3 @@
-/********************************************************************
-*       (c) Copyright 2010, Hogeschool voor de Kunsten Utrecht
-*                       Hilversum, the Netherlands
-*********************************************************************
-*
-* File name     : jack_flanger.cpp
-* System name   : digital effects
-* 
-*
-* Description   : flanger with JACK interface
-*
-*
-* Author        : Marc_G
-* E-mail        : marcg@dinkum.nl
-*
-********************************************************************/
 #include <iostream>
 #include <math.h>
 
@@ -35,14 +19,9 @@ jack_port_t *output_port;
 
 
 #define MAXDELAY 2000
-double flangerphase=0;
-double flangerfrequency=0.1;
-jack_nframes_t samplerate;
-
 
 jack_default_audio_sample_t delayline[MAXDELAY];
-int writepointer=MAXDELAY-1;
-int readpointer=0;
+int delay_index=0;
 
 
 int process(jack_nframes_t nframes, void *arg)
@@ -54,20 +33,14 @@ int process(jack_nframes_t nframes, void *arg)
     (jack_default_audio_sample_t *) jack_port_get_buffer(output_port,nframes);
 
   for(unsigned int x=0; x<nframes; x++)
-  {
-    
-    readpointer = writepointer + MAXDELAY * (0.5 + 0.5*sin(flangerphase));
-    readpointer%=MAXDELAY;
-    flangerphase += 2*M_PI*flangerfrequency/samplerate;
-
-    out[x] = in[x]+delayline[readpointer];
-    //out[x] = delayline[readpointer];
-    delayline[writepointer]=in[x];
-
-    writepointer++;
-    writepointer%=MAXDELAY;
+  { 
+    out[x] = in[x]+delayline[delay_index];
+    delayline[delay_index]=in[x];
+    delay_index++;
+    delay_index%=MAXDELAY;
   }
- 
+
+  
   return 0;   
 } // process()
 
@@ -85,7 +58,6 @@ void jack_shutdown(void *arg)
 
 int updatesamplerate(jack_nframes_t nframes, void *arg)
 {
-  samplerate=nframes;
   cout << "Sample rate set to: " << nframes << endl;
   return 0;
 }
@@ -103,9 +75,6 @@ const char **ports;
     return 1;
   }
 
-  samplerate=jack_get_sample_rate(client);
-
-cout << samplerate;
   // Install the sample processing callback
   jack_set_process_callback(client,process,0);
 
@@ -158,6 +127,7 @@ cout << samplerate;
   {
     cout << "Cannot connect output ports\n";
   }
+
 
   // second output
   if(jack_connect(client,jack_port_name(output_port),ports[1]))

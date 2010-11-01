@@ -55,7 +55,7 @@ int process(jack_nframes_t nframes, void *arg)
     out[x] = in[x]<threshold ? in[x] : threshold;
     power += in[x]*in[x];
   }
-  threshold = sqrt(power) * 0.1;
+  threshold = 0.1;
 
   
   return 0;   
@@ -145,13 +145,12 @@ const char **ports;
     cout << "Cannot connect output ports\n";
   }
 
-/*
   // second output
   if(jack_connect(client,jack_port_name(output_port),ports[1]))
   {
     cout << "Cannot connect output ports\n";
   }
-*/
+
   free(ports); // ports structure no longer needed
 
   /*
